@@ -6,7 +6,7 @@ This directory holds a **minimal starting point** for wiring GitHub Actions (OID
 
 - GitHub org/repo allowed in the IAM role trust policy.
 - ECR repository name(s).
-- EKS cluster name and `AccessEntry` / `AccessPolicy` for the role (see [AWS EKS access entries](https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html)).
+- EKS **access entries** mapping this role into your cluster (see [AWS EKS access entries](https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html)).
 
 ## Layout
 

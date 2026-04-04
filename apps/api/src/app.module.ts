@@ -11,12 +11,19 @@ import { PrismaModule } from './prisma/prisma.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: Number(process.env.RATE_LIMIT_TTL_MS ?? 60_000),
-        limit: Number(process.env.RATE_LIMIT_MAX ?? 100),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: Number(process.env.RATE_LIMIT_TTL_MS ?? 60_000),
+          limit: Number(process.env.RATE_LIMIT_MAX ?? 100),
+        },
+      ],
+      skipIf: (ctx) => {
+        const req = ctx.switchToHttp().getRequest<{ url?: string }>();
+        const url = req.url ?? '';
+        return url.startsWith('/health') || url.startsWith('/metrics') || url.startsWith('/docs');
       },
-    ]),
+    }),
     PrismaModule,
     MetricsModule,
     HealthModule,
