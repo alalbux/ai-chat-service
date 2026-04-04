@@ -31,6 +31,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run build -w @ai-chat/contracts
       - run: npm run test:cov -w @ai-chat/contracts
       - run: npm run test:cov -w @ai-chat/api
       - name: Upload coverage reports
@@ -41,7 +42,6 @@ jobs:
           path: |
             apps/api/coverage
             packages/contracts/coverage
-      - run: npm run build -w @ai-chat/contracts
       - run: npm run build -w @ai-chat/api
       - run: npm run build -w @ai-chat/demo-ui
 

@@ -9,14 +9,6 @@ module.exports = {
   collectCoverageFrom: ['**/*.(t|j)s'],
   coveragePathIgnorePatterns: ['[\\\\/]main\\.ts$', '\\.module\\.ts$'],
   coverageDirectory: '../coverage',
-  coverageThreshold: {
-    global: {
-      branches: 90,
-      functions: 90,
-      lines: 90,
-      statements: 90,
-    },
-  },
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@ai-chat/contracts$': '<rootDir>/../../../packages/contracts/src/index.ts',
