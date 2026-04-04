@@ -132,7 +132,7 @@ jobs:
           push: false
           tags: rt-chat-api:ci
           load: true
-      - uses: aquasecurity/trivy-action@0.28.0
+      - uses: aquasecurity/trivy-action@v0.34.0
         with:
           scan-type: image
           image-ref: rt-chat-api:ci
