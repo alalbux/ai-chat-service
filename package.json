@@ -23,6 +23,9 @@
     "migrate:deploy": "npm run prisma:migrate:deploy -w @ai-chat/api"
   },
   "devDependencies": {
+    "@nestjs/common": "^11.1.18",
+    "@nestjs/core": "^11.1.18",
+    "@nestjs/platform-express": "^11.1.18",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2"
   }

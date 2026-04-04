@@ -10,7 +10,7 @@ help:
 	@echo "  make db-up         docker compose up -d postgres"
 	@echo "  make db-down       docker compose down"
 	@echo "  make migrate       prisma migrate dev (API workspace)"
-	@echo "  make dev-api       Nest API on :3000 (watch)"
+	@echo "  make dev-api       Nest API on :3000 (watch); Swagger at /docs"
 	@echo "  make dev-demo      Next demo on :3001"
 	@echo "  make contracts     Zod contract tests"
 	@echo "  make test          contracts + API unit tests"
@@ -35,6 +35,7 @@ migrate:
 	npm run migrate
 
 dev-api:
+	@echo Swagger UI: http://localhost:3000/docs
 	node apps/api/scripts/run-nest.cjs start --watch
 
 dev-demo:

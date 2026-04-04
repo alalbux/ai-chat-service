@@ -13,7 +13,11 @@ const result = spawnSync(process.execPath, [nestCli, ...nestArgs], {
   stdio: 'inherit',
   env: {
     ...process.env,
-    NODE_PATH: [path.join(monorepoRoot, 'node_modules'), process.env.NODE_PATH]
+    NODE_PATH: [
+      path.join(apiRoot, 'node_modules'),
+      path.join(monorepoRoot, 'node_modules'),
+      process.env.NODE_PATH,
+    ]
       .filter(Boolean)
       .join(path.delimiter),
   },

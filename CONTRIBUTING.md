@@ -3,7 +3,7 @@
 ## Setup
 
 1. Install **Node.js 22** (see `.nvmrc`) and **GNU Make** (Git Bash / WSL / macOS / Linux). On Windows, Git for Windows includes Git Bash where `make` works if installed (`choco install make` is another option).
-2. Clone under a short path (for example `~/work/...`) to avoid Windows path limits.
+2. Clone under a short path (for example `~/work/...` on WSL’s Linux filesystem) to avoid Windows path limits and `node_modules/.bin` permission issues on `/mnt/c/`; see **WSL and `/mnt/c/`** in [docs/development.md](docs/development.md).
 3. Run:
 
 ```bash
