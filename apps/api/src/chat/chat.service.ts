@@ -65,11 +65,10 @@ export class ChatService {
       id: row.id,
       userId: row.userId,
       prompt: row.prompt,
-      reply: row.reply,
-      provider,
+      response: row.reply,
       model: row.model,
-      createdAt: row.createdAt.toISOString(),
-      updatedAt: row.updatedAt.toISOString(),
+      timestamp: row.createdAt.toISOString(),
+      provider,
     };
   }
 }

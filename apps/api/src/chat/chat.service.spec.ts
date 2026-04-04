@@ -35,7 +35,8 @@ describe('ChatService', () => {
     });
 
     const out = await service.create({ userId: 'u1', prompt: 'yo' });
-    expect(out.reply).toBe('hi');
+    expect(out.response).toBe('hi');
+    expect(out.timestamp).toBe('2026-01-01T00:00:00.000Z');
     expect(out.provider).toBe('mock');
     expect(llm.complete).toHaveBeenCalledWith('yo');
   });

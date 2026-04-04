@@ -17,12 +17,12 @@ describe('ChatRecordSchema', () => {
       id: 'c1',
       userId: 'u1',
       prompt: 'hi',
-      reply: 'hello',
-      provider: 'mock',
+      response: 'hello',
       model: null,
-      createdAt: '2026-01-01T00:00:00.000Z',
-      updatedAt: '2026-01-01T00:00:00.000Z',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      provider: 'mock',
     });
     expect(r.provider).toBe('mock');
+    expect(r.response).toBe('hello');
   });
 });

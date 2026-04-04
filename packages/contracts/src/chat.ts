@@ -11,11 +11,10 @@ export const ChatRecordSchema = z.object({
   id: z.string(),
   userId: z.string(),
   prompt: z.string(),
-  reply: z.string(),
-  provider: z.enum(['openrouter', 'gemini', 'mock']),
+  response: z.string(),
   model: z.string().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  timestamp: z.string().datetime(),
+  provider: z.enum(['openrouter', 'gemini', 'mock']),
 });
 
 export type ChatRecord = z.infer<typeof ChatRecordSchema>;

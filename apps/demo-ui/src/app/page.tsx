@@ -65,7 +65,7 @@ export default function HomePage() {
 
       {record ? (
         <div className="card" data-testid="result">
-          <div className="reply">{record.reply}</div>
+          <div className="reply">{record.response}</div>
           <div className="meta">
             id: {record.id} · provider: {record.provider}
             {record.model ? ` · model: ${record.model}` : ''}

@@ -13,7 +13,7 @@
     "build": "npm run build -w @ai-chat/contracts && npm run build -w @ai-chat/api && npm run build -w @ai-chat/demo-ui",
     "lint": "npm run lint -w @ai-chat/api && npm run lint -w @ai-chat/demo-ui",
     "lint:ci": "npm run lint:ci -w @ai-chat/api && npm run lint:ci -w @ai-chat/demo-ui",
-    "typecheck": "npm run typecheck -w @ai-chat/api && npm run typecheck -w @ai-chat/demo-ui && npm run typecheck -w @ai-chat/contracts",
+    "typecheck": "npm run build -w @ai-chat/contracts && npm run typecheck -w @ai-chat/api && npm run typecheck -w @ai-chat/demo-ui && npm run typecheck -w @ai-chat/contracts",
     "contracts": "npm run test -w @ai-chat/contracts",
     "test": "npm run contracts && npm run test -w @ai-chat/api",
     "test-e2e": "npm run test:e2e -w @ai-chat/api",

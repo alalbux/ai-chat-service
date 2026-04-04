@@ -28,6 +28,20 @@ Smoke tests live in `apps/demo-ui/e2e/`. They expect the API to answer `GET /hea
 - `make env` / `npm run env` copies `apps/api/.env.example` → `apps/api/.env` and `apps/demo-ui/.env.local.example` → `apps/demo-ui/.env.local` when missing.
 - Use `LLM_MOCK=1` for local work without provider keys.
 
+## Chat API contract (engineering challenge)
+
+The public JSON matches the Part 1 example in the challenge document: `POST /v1/chat` with `userId` and `prompt`; the response includes `response` (LLM text), `model`, and `timestamp` (ISO 8601). The database still stores the assistant text in a column named `reply`; the API maps it to `response` and exposes `timestamp` from `createdAt`.
+
+| Challenge example | This API |
+|-------------------|----------|
+| `userId`, `prompt` (request) | Same |
+| `response` (LLM output) | Same |
+| `timestamp` | From record creation time (`createdAt`) |
+| `model` | Same (nullable if unknown) |
+| — | `provider`: `openrouter` \| `gemini` \| `mock` (extra field for observability) |
+
+OpenAPI examples that mirror the PDF are on Swagger UI at `/docs` under the **chat** tag.
+
 ## Node version
 
 `.nvmrc` pins Node **22** (CI uses `actions/setup-node` with `node-version-file: .nvmrc`).

@@ -42,7 +42,7 @@ const runE2e = Boolean(process.env.DATABASE_URL);
     expect(res.body.status).toBe('ok');
   });
 
-  it('POST /v1/chat persists mock reply', async () => {
+  it('POST /v1/chat persists mock response', async () => {
     const res = await request(app.getHttpServer())
       .post('/v1/chat')
       .send({ userId: 'e2e-user', prompt: 'hello e2e' })
@@ -50,7 +50,8 @@ const runE2e = Boolean(process.env.DATABASE_URL);
 
     expect(res.body.id).toBeDefined();
     expect(res.body.provider).toBe('mock');
-    expect(res.body.reply).toContain('[mock]');
+    expect(res.body.response).toContain('[mock]');
+    expect(res.body.timestamp).toBeDefined();
 
     const get = await request(app.getHttpServer()).get(`/v1/chats/${res.body.id}`).expect(200);
     expect(get.body.prompt).toBe('hello e2e');
