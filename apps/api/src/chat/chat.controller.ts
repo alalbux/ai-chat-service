@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 
@@ -8,6 +8,7 @@ export class ChatController {
   constructor(private readonly chat: ChatService) {}
 
   @Post('chat')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create chat completion and persist' })
   create(@Body() body: unknown) {
     return this.chat.create(body);
