@@ -1,0 +1,27 @@
+# Example Helm values for the Datadog Agent on Kubernetes (adjust cluster/account).
+# Install: helm repo add datadog https://helm.datadoghq.com && helm install datadog-agent datadog/datadog -f values-agent-example.yaml
+
+datadog:
+  apiKeyExistingSecret: datadog-secret
+  clusterName: rt-chat-eks
+  site: datadoghq.com
+  kubeStateMetricsEnabled: true
+  logs:
+    enabled: true
+    containerCollectAll: true
+  apm:
+    portEnabled: true
+  prometheusScrape:
+    enabled: true
+    additionalConfigs:
+      - configurations:
+          - send_distribution_buckets: true
+        autodiscovery:
+          kubernetes_annotations:
+            include:
+              prometheus.io/scrape: 'true'
+
+clusterAgent:
+  enabled: true
+  metricsProvider:
+    enabled: true

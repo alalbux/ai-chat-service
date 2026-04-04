@@ -1,0 +1,6 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rt-chat-api
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /health/live
