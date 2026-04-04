@@ -32,7 +32,9 @@ const runE2e = Boolean(process.env.DATABASE_URL);
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it('health live', async () => {

@@ -31,3 +31,4 @@ Smoke tests live in `apps/demo-ui/e2e/`. They expect the API to answer `GET /hea
 ## Node version
 
 `.nvmrc` pins Node **22** (CI uses `actions/setup-node` with `node-version-file: .nvmrc`).
+

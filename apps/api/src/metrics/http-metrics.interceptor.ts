@@ -2,7 +2,7 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Counter } from 'prom-client';
 import { Observable, tap } from 'rxjs';
-import { HTTP_REQUESTS_METRIC } from './metrics.module';
+import { HTTP_REQUESTS_METRIC } from './metrics.constants';
 
 @Injectable()
 export class HttpMetricsInterceptor implements NestInterceptor {

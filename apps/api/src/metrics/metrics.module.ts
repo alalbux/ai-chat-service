@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { PrometheusModule, makeCounterProvider } from '@willsoto/nestjs-prometheus';
-
-export const HTTP_REQUESTS_METRIC = 'http_requests_total';
+import { HttpMetricsInterceptor } from './http-metrics.interceptor';
+import { HTTP_REQUESTS_METRIC } from './metrics.constants';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ export const HTTP_REQUESTS_METRIC = 'http_requests_total';
       help: 'Total HTTP requests',
       labelNames: ['method', 'route', 'status_code'] as const,
     }),
+    { provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor },
   ],
   exports: [PrometheusModule],
 })
