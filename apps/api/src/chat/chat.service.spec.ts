@@ -1,4 +1,5 @@
-﻿import { BadRequestException, NotFoundException } from '@nestjs/common';
+import * as contracts from '@ai-chat/contracts';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { LlmService } from '../llm/llm.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatService } from './chat.service';
@@ -69,6 +70,20 @@ describe('ChatService', () => {
     expect(act).toThrow(BadRequestException);
   });
 
+  it('parseCreateBody rethrows non-Zod errors', () => {
+    // Arrange
+    const spy = jest.spyOn(contracts.ChatCreateBodySchema, 'parse').mockImplementation(() => {
+      throw new Error('not zod');
+    });
+
+    // Act
+    const act = () => service.parseCreateBody({ userId: 'u', prompt: 'p' });
+
+    // Assert
+    expect(act).toThrow('not zod');
+    spy.mockRestore();
+  });
+
   it('parseCreateBody attaches Zod issues to BadRequest response', () => {
     // Arrange
     const invalidBody = { userId: '', prompt: 'x' };
@@ -112,6 +127,26 @@ describe('ChatService', () => {
     expect(out.provider).toBe('openrouter');
     expect(out.model).toBe('m');
     expect(prisma.chat.findUnique).toHaveBeenCalledWith({ where: { id: 'c2' } });
+  });
+
+  it('findById throws when persisted provider is invalid', async () => {
+    // Arrange
+    prisma.chat.findUnique = jest.fn().mockResolvedValue({
+      id: 'c2',
+      userId: 'u2',
+      prompt: 'q',
+      reply: 'a',
+      provider: 'unknown-provider',
+      model: null,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    });
+
+    // Act
+    const promise = service.findById('c2');
+
+    // Assert
+    await expect(promise).rejects.toThrow(/Invalid provider persisted/);
   });
 
   it('findById throws NotFoundException when row is missing', async () => {

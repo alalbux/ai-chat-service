@@ -11,6 +11,7 @@
     "lint:ci": "npm exec eslint -- \"{src,test}/**/*.ts\" --max-warnings 0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest",
+    "test:cov": "jest --coverage",
     "test:watch": "jest --watch",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
     "prisma:generate": "prisma generate",

@@ -10,11 +10,25 @@ make ci
 npm run ci
 ```
 
-This runs `lint:ci`, `typecheck`, `test` (contracts + API unit tests), and `build` (contracts, API, demo UI).
+This runs `lint:ci`, `typecheck`, `test:cov` (contracts + API unit tests with **≥ 90%** coverage enforcement), and `build` (contracts, API, demo UI).
 
 ## Coverage
 
-Jest is configured for `@ai-chat/contracts` and `@ai-chat/api`. Add `--coverage` to workspace test scripts when you want HTML/lcov output; keep thresholds realistic for new projects.
+Unit tests enforce **≥ 90%** Jest coverage (statements, branches, functions, lines) for:
+
+- **`@ai-chat/contracts`:** `src/**/*.ts` except `index.ts` (barrel re-exports only) and `*.test.ts`.
+- **`@ai-chat/api`:** all `src/**/*.ts` except `main.ts` and `*.module.ts` (Nest bootstrap / wiring; behaviour is covered by e2e and integration tests where relevant).
+
+Run locally:
+
+```bash
+npm run test:cov
+# or per workspace
+npm run test:cov -w @ai-chat/contracts
+npm run test:cov -w @ai-chat/api
+```
+
+Reports are written to `packages/contracts/coverage/` and `apps/api/coverage/`. The GitHub Actions **unit** job runs `test:cov` and uploads those folders as a **coverage** artifact. If coverage drops below the threshold, CI fails.
 
 ## Playwright (demo UI)
 

@@ -53,7 +53,7 @@ test-e2e:
 ci:
 	npm run lint:ci
 	npm run typecheck
-	npm run test
+	npm run test:cov
 	npm run build
 
 docker-build:
