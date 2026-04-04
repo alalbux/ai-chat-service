@@ -1,0 +1,29 @@
+{
+  "name": "ai-chat-service",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.19.0 || >=22.13.0"
+  },
+  "scripts": {
+    "env": "node scripts/copy-env.mjs",
+    "build": "npm run build -w @ai-chat/contracts && npm run build -w @ai-chat/api && npm run build -w @ai-chat/demo-ui",
+    "lint": "npm run lint -w @ai-chat/api && npm run lint -w @ai-chat/demo-ui",
+    "lint:ci": "npm run lint:ci -w @ai-chat/api && npm run lint:ci -w @ai-chat/demo-ui",
+    "typecheck": "npm run typecheck -w @ai-chat/api && npm run typecheck -w @ai-chat/demo-ui && npm run typecheck -w @ai-chat/contracts",
+    "contracts": "npm run test -w @ai-chat/contracts",
+    "test": "npm run contracts && npm run test -w @ai-chat/api",
+    "test-e2e": "npm run test:e2e -w @ai-chat/api",
+    "ci": "npm run lint:ci && npm run typecheck && npm run test && npm run build",
+    "db:generate": "npm run prisma:generate -w @ai-chat/api",
+    "migrate": "npm run prisma:migrate -w @ai-chat/api",
+    "migrate:deploy": "npm run prisma:migrate:deploy -w @ai-chat/api"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}
