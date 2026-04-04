@@ -1,4 +1,4 @@
-name: CD
+name: CD for AI Chat API
 
 on:
   push:

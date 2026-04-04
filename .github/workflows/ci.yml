@@ -1,4 +1,4 @@
-name: CI
+name: CI for AI Chat API
 
 on:
   push:

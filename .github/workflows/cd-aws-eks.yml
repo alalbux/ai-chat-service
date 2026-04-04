@@ -1,4 +1,4 @@
-name: CD AWS EKS
+name: CD for AWS EKS
 
 on:
   workflow_dispatch:
