@@ -5,11 +5,10 @@
 Runs on every push and pull request:
 
 1. **lint-typecheck** — ESLint (`lint:ci`) and TypeScript across workspaces.
-2. **unit** — Contract tests, API unit tests, production builds (contracts, API, demo UI).
+2. **unit** — Contract + API unit tests with coverage (`test:cov`), coverage artifact upload, then production builds (contracts, API, demo UI).
 3. **api-e2e** — Postgres service container, `prisma migrate deploy`, API e2e (Supertest) with `LLM_MOCK=1`.
 4. **demo-playwright** — Same database setup, API in background, Playwright smoke against Next (`next start` in CI).
-5. **trivy-fs** — Filesystem vulnerability scan (informational exit code).
-6. **docker-build** — Builds the root `Dockerfile` and scans the image with Trivy.
+5. **docker-build** — Builds the root `Dockerfile` and scans the image with Trivy.
 
 ### SAST
 
@@ -27,7 +26,7 @@ Runs on pushes to `main`:
 ### Variáveis e segredos (resumo)
 
 | Item | Onde | Uso |
-|------|------|-----|
+|------|------|------|
 | `GITHUB_TOKEN` | Automático | Push da imagem para GHCR no job `publish-image` |
 | `ENABLE_CD_STAGING` | Variável do repositório | Liga jobs de staging (padrão ausente / `false`) |
 | `ENABLE_CD_PRODUCTION` | Variável do repositório | Liga deploy de produção |
@@ -46,7 +45,7 @@ Restrinja com `permissions: packages: write` e políticas do org.
 
 Conecte o diretório `apps/demo-ui` a um projeto Vercel. Defina **`NEXT_PUBLIC_API_URL`** para o host da API (preview ou produção). O build Next incorpora essa variável em tempo de build.
 
-### API “free tier” / hospedagem barata
+### API "free tier" / hospedagem barata
 
 Para ambientes de baixo custo, use um Postgres gerenciado gratuito ou compartilhado, defina `DATABASE_URL` no runtime, e execute `prisma migrate deploy` no bootstrapping (job de deploy ou init container), mantendo a mesma imagem Docker da raiz.
 
