@@ -32,3 +32,13 @@ Smoke tests live in `apps/demo-ui/e2e/`. They expect the API to answer `GET /hea
 
 `.nvmrc` pins Node **22** (CI uses `actions/setup-node` with `node-version-file: .nvmrc`).
 
+## npm audit and Nest versions
+
+The API uses **Nest 10** with aligned `@nestjs/*` in [`apps/api/package.json`](../apps/api/package.json).
+
+**Do not run `npm audit fix --force`** — it upgrades Nest packages out of sync and breaks peers.
+
+**Avoid `npm audit fix` (without `--force`) as well** if it leaves an inconsistent tree: npm may **downgrade** a package (for example `@nestjs/config` to an ancient `1.x` for a transitive lodash advisory) while other `@nestjs/*` stay on 10 or 11, which triggers `ERESOLVE` or hybrid peer conflicts. If that happens, restore `apps/api/package.json` from git and run a clean `npm install` from the repo root (delete `package-lock.json` and all `node_modules` if needed).
+
+For the usual “many findings, only fix via `--force`” situation: stay on one Nest major, use **`npm run ci`** as the quality bar, and remember production images run **`npm prune --omit=dev`** so CLI-only transitives do not ship. A future **Nest 11** migration is the path to a cleaner `npm audit` without fighting peers.
+
