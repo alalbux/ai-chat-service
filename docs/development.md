@@ -12,6 +12,16 @@ npm run ci
 
 This runs `lint:ci`, `typecheck`, `test:cov` (contracts + API unit tests with coverage reports), and `build` (contracts, API, demo UI).
 
+## Troubleshooting (Windows / Prisma)
+
+If `prisma generate` (during `npm run build -w @ai-chat/api` or `make ci`) fails with:
+
+`EPERM: operation not permitted, rename '...\query_engine-windows.dll.node.tmp...' -> '...\query_engine-windows.dll.node'`
+
+then another process almost always has that DLL loaded. **Stop the Nest dev server** (`make dev-api` / `Ctrl+C`), close any other `node` process using this repo’s API, and run the build again. With npm workspaces the engine lives under the **repo root** `node_modules/.prisma/client/`, so a running API locks the same file `prisma generate` tries to replace.
+
+If nothing obvious is running, retry after a few seconds (antivirus can briefly lock the file) or add a Defender exclusion for the project folder.
+
 ## Coverage
 
 `test:cov` collects Jest coverage for:
