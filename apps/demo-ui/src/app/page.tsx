@@ -39,8 +39,8 @@ export default function HomePage() {
     <main>
       <h1>AI Chat Demo</h1>
       <p className="sub">
-        Posts to <code>{apiBase()}/v1/chat</code> — set{' '}
-        <code>NEXT_PUBLIC_API_URL</code> for other hosts.
+        Posts to <code>{apiBase()}/v1/chat</code> — set <code>NEXT_PUBLIC_API_URL</code> for other
+        hosts.
       </p>
 
       <div className="card">

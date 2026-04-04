@@ -1,12 +1,12 @@
-import { copyFileSync, existsSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { copyFileSync, existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const pairs = [
-  ["apps/api/.env.example", "apps/api/.env"],
-  ["apps/demo-ui/.env.local.example", "apps/demo-ui/.env.local"],
+  ['apps/api/.env.example', 'apps/api/.env'],
+  ['apps/demo-ui/.env.local.example', 'apps/demo-ui/.env.local'],
 ];
 
 for (const [fromRel, toRel] of pairs) {

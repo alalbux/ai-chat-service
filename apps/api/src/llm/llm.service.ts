@@ -98,9 +98,7 @@ export class LlmService {
     }
   }
 
-  private async tryGemini(
-    prompt: string,
-  ): Promise<{ result?: LlmCompletion; message: string }> {
+  private async tryGemini(prompt: string): Promise<{ result?: LlmCompletion; message: string }> {
     const apiKey = this.config.get<string>('GEMINI_API_KEY');
     const modelName = this.config.get<string>('GEMINI_MODEL') ?? 'gemini-1.5-flash';
     if (!apiKey) {
