@@ -2,7 +2,7 @@ import { VersioningType, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { AppModule } from '../src/app.module';
-import * as request from 'supertest';
+import request from 'supertest';
 import type { INestApplication } from '@nestjs/common';
 
 const runE2e = Boolean(process.env.DATABASE_URL);

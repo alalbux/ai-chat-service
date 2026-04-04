@@ -18,7 +18,9 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
     : {
-        command: `node scripts/run-next.cjs dev -- -p ${port} -H 127.0.0.1`,
+        command: process.env.CI
+          ? `node scripts/run-next.cjs start -- -p ${port} -H 127.0.0.1`
+          : `node scripts/run-next.cjs dev -- -p ${port} -H 127.0.0.1`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

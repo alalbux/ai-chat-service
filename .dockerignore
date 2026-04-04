@@ -1,0 +1,17 @@
+node_modules
+**/node_modules
+.git
+.next
+**/.next
+dist
+**/dist
+coverage
+**/*.log
+.env
+.env.local
+apps/api/.env
+apps/demo-ui/.env.local
+playwright-report
+test-results
+README.md
+docs

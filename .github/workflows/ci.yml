@@ -1,0 +1,144 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:ci
+      - run: npm run typecheck
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run contracts
+      - run: npm run test -w @ai-chat/api
+      - run: npm run build -w @ai-chat/contracts
+      - run: npm run build -w @ai-chat/api
+      - run: npm run build -w @ai-chat/demo-ui
+
+  api-e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: rtchat
+          POSTGRES_PASSWORD: rtchat
+          POSTGRES_DB: rtchat
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rtchat -d rtchat"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://rtchat:rtchat@localhost:5432/rtchat?schema=public
+      LLM_MOCK: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build -w @ai-chat/contracts
+      - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - run: npm run build -w @ai-chat/api
+      - run: npm run test:e2e -w @ai-chat/api
+
+  demo-playwright:
+    runs-on: ubuntu-latest
+    needs: [lint-typecheck]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: rtchat
+          POSTGRES_PASSWORD: rtchat
+          POSTGRES_DB: rtchat
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rtchat -d rtchat"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://rtchat:rtchat@localhost:5432/rtchat?schema=public
+      LLM_MOCK: '1'
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build -w @ai-chat/contracts
+      - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - run: npm run build -w @ai-chat/api
+      - run: npm run build -w @ai-chat/demo-ui
+      - run: npm run start:prod -w @ai-chat/api &
+      - name: Wait for API
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf http://127.0.0.1:3000/health/live && exit 0
+            sleep 1
+          done
+          exit 1
+      - run: npx playwright install chromium --with-deps
+        working-directory: apps/demo-ui
+      - run: npx playwright test
+        working-directory: apps/demo-ui
+
+  trivy-fs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: '0'
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: rt-chat-api:ci
+          load: true
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: rt-chat-api:ci
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '0'
