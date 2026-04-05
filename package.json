@@ -18,12 +18,14 @@
     "test": "npm run contracts && npm run test -w @ai-chat/api",
     "test:cov": "npm run build -w @ai-chat/contracts && npm run test:cov -w @ai-chat/contracts && npm run test:cov -w @ai-chat/api",
     "test-e2e": "npm run test:e2e -w @ai-chat/api",
+    "test:e2e:demo": "npm run test:e2e -w @ai-chat/demo-ui",
     "ci": "npm run lint:ci && npm run typecheck && npm run test:cov && npm run build",
     "db:generate": "npm run prisma:generate -w @ai-chat/api",
     "migrate": "npm run prisma:migrate -w @ai-chat/api",
     "migrate:deploy": "npm run prisma:migrate:deploy -w @ai-chat/api"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "@nestjs/common": "^11.1.18",
     "@nestjs/core": "^11.1.18",
     "@nestjs/platform-express": "^11.1.18",
