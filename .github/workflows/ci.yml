@@ -52,6 +52,11 @@ jobs:
           path: |
             apps/api/coverage
             packages/contracts/coverage
+      - name: Upload coverage reports to Datadog
+        uses: DataDog/coverage-upload-github-action@v1
+        with:
+          api_key: ${{ secrets.DD_API_KEY }}
+          site: us5.datadoghq.com
       - run: npm run build -w @ai-chat/api
       - run: npm run build -w @ai-chat/demo-ui
 
