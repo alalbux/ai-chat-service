@@ -26,5 +26,8 @@ RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/
 ENV NODE_ENV=production
 COPY --from=build /app /app
 
+RUN chown -R node:node /app
+USER node
+
 EXPOSE 3000
 CMD ["node", "apps/api/dist/main.js"]

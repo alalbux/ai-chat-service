@@ -27,7 +27,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: ecr
@@ -41,13 +41,19 @@ jobs:
           tags: |
             ${{ steps.ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}
 
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.31.0
+
       - name: kubeconfig
         run: aws eks update-kubeconfig --name "${{ secrets.EKS_CLUSTER_NAME }}" --region "${{ env.AWS_REGION }}"
 
       - name: Apply manifests
         env:
           IMAGE_URI: ${{ steps.ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}
+          EKS_NAMESPACE: ${{ env.EKS_NAMESPACE }}
         run: |
           kubectl apply -k k8s/overlays/aws-eks
-          kubectl -n ${{ env.EKS_NAMESPACE }} set image deployment/rt-chat-api api="${IMAGE_URI}"
-          kubectl rollout status deployment/rt-chat-api -n ${{ env.EKS_NAMESPACE }} --timeout=300s
+          kubectl -n "$EKS_NAMESPACE" set image deployment/rt-chat-api api="${IMAGE_URI}"
+          kubectl rollout status deployment/rt-chat-api -n "$EKS_NAMESPACE" --timeout=300s

@@ -3,8 +3,24 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+function corsOriginOption(): boolean | string[] {
+  const raw = process.env.CORS_ORIGINS?.trim();
+  if (!raw) {
+    return true;
+  }
+  const list = raw
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return list.length > 0 ? list : true;
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.enableCors({
+    origin: corsOriginOption(),
+    credentials: true,
+  });
   app.enableVersioning({
     type: VersioningType.URI,
   });
