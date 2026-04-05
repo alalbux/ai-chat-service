@@ -10,6 +10,7 @@ module.exports = {
   coveragePathIgnorePatterns: ['[\\\\/]main\\.ts$', '\\.module\\.ts$'],
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/../test/jest-dd-env.ts'],
   moduleNameMapper: {
     '^@ai-chat/contracts$': '<rootDir>/../../../packages/contracts/src/index.ts',
   },

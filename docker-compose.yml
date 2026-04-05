@@ -14,6 +14,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - rtchat
 
   api:
     build: .
@@ -24,9 +26,40 @@ services:
       PORT: '3000'
       LLM_MOCK: '1'
       NODE_ENV: production
+      DD_TRACE_ENABLED: ${DD_TRACE_ENABLED:-false}
+      DD_AGENT_HOST: ${DD_AGENT_HOST:-datadog-agent}
+      DD_TRACE_AGENT_PORT: ${DD_TRACE_AGENT_PORT:-8126}
+      DD_SERVICE: ${DD_SERVICE:-rt-chat-api}
+      DD_ENV: ${DD_ENV:-local}
+      DD_VERSION: ${DD_VERSION:-0.0.1}
+      DD_LOGS_INJECTION: ${DD_LOGS_INJECTION:-false}
+      DD_TRACE_SAMPLE_RATE: ${DD_TRACE_SAMPLE_RATE:-1}
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - rtchat
+
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    profiles:
+      - datadog
+    networks:
+      - rtchat
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    environment:
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: ${DD_SITE:-datadoghq.com}
+      DD_APM_ENABLED: 'true'
+      DD_APM_NON_LOCAL_TRAFFIC: 'true'
+
+networks:
+  rtchat:
+    name: rtchat
+    driver: bridge
 
 volumes:
   pgdata:

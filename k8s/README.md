@@ -31,6 +31,10 @@ npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
 
 The container entrypoint does **not** run migrations automatically.
 
+## Datadog APM
+
+Tracing is wired in the API image (`dd-trace`). Configure **`DD_TRACE_ENABLED`**, **`DD_AGENT_HOST`**, and related **`DD_*`** env vars on the Deployment once the in-cluster Agent is installed. See [`docs/datadog-setup.md`](../docs/datadog-setup.md) for the full list and **`kubectl set env`** example.
+
 ## Image
 
 The base manifest uses a placeholder image `ghcr.io/example/ai-chat-api:latest`. After `kubectl apply`, set the real image:
