@@ -1,7 +1,9 @@
 .PHONY: help env install db-up db-down migrate dev-api dev-demo contracts test test-e2e ci \
-	docker-build docker-run-local
+	docker-build docker-run-local docker-compose-migrate-deploy docker-up
 
 DOCKER_DB_HOST ?= host.docker.internal
+# Host URL for prisma migrate against compose Postgres (published :5432)
+COMPOSE_DATABASE_URL ?= postgresql://rtchat:rtchat@127.0.0.1:5432/rtchat?schema=public
 
 help:
 	@echo "AI Chat monorepo — common targets:"
@@ -18,6 +20,8 @@ help:
 	@echo "  make ci            lint:ci, typecheck, test, build"
 	@echo "  make docker-build  Build rt-chat-api:local"
 	@echo "  make docker-run-local  Run API container -> :3000 (Postgres via DOCKER_DB_HOST, default host.docker.internal)"
+	@echo "  make docker-compose-migrate-deploy  Postgres up + prisma migrate deploy (from host)"
+	@echo "  make docker-up     migrate deploy + compose up API + Postgres (:3000, /docs, /v1/...)"
 
 env:
 	npm run env
@@ -65,3 +69,11 @@ docker-run-local:
 		-e LLM_MOCK=1 \
 		-e PORT=3000 \
 		rt-chat-api:local
+
+docker-compose-migrate-deploy:
+	docker compose up -d postgres
+	@until docker compose exec -T postgres pg_isready -U rtchat -d rtchat >/dev/null 2>&1; do sleep 1; done
+	DATABASE_URL=$(COMPOSE_DATABASE_URL) npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+
+docker-up: docker-compose-migrate-deploy
+	docker compose up -d --build api

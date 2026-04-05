@@ -49,6 +49,14 @@ make docker-run-local        # http://localhost:3000 — DATABASE_URL → Postgr
 
 Migrations are **not** run inside the container; apply them with `make migrate` before starting the container.
 
+### Docker Compose (API + Postgres)
+
+```bash
+make docker-up   # prisma migrate deploy from host, then API + Postgres on :3000
+```
+
+Swagger: http://localhost:3000/docs — see [docs/development.md](docs/development.md) for details and optional `API_GLOBAL_PREFIX`.
+
 ## API examples (curl)
 
 Chat (mock mode recommended without keys):

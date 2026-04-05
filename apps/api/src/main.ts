@@ -21,6 +21,10 @@ async function bootstrap() {
     origin: corsOriginOption(),
     credentials: true,
   });
+  const globalPrefix = process.env.API_GLOBAL_PREFIX?.trim();
+  if (globalPrefix) {
+    app.setGlobalPrefix(globalPrefix);
+  }
   app.enableVersioning({
     type: VersioningType.URI,
   });
@@ -45,8 +49,9 @@ async function bootstrap() {
   const port = Number(process.env.PORT) || 3000;
   await app.listen(port);
   const base = `http://localhost:${port}`;
+  const docsPath = globalPrefix ? `/${globalPrefix}/docs` : '/docs';
   Logger.log(`Listening on ${base}`, 'Bootstrap');
-  Logger.log(`Swagger UI: ${base}/docs`, 'Bootstrap');
+  Logger.log(`Swagger UI: ${base}${docsPath}`, 'Bootstrap');
 }
 
 bootstrap();

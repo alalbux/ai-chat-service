@@ -48,6 +48,24 @@ Smoke tests live in `apps/demo-ui/e2e/`. They expect the API to answer `GET /hea
 - **Local:** start Postgres + API + demo (`make dev-api` / `make dev-demo`), then `npm run test:e2e -w @ai-chat/demo-ui`.
 - **CI:** the workflow starts Postgres, migrates, runs the API in the background, builds the demo with `NEXT_PUBLIC_API_URL`, then runs Playwright with `next start` for the UI.
 
+## Docker Compose (API + Postgres + `/docs`)
+
+The [Dockerfile](../Dockerfile) runs the Nest API on port **3000**. Swagger UI is on **`/docs`** (same origin as the API). JSON routes are under **`/v1/...`** (e.g. `POST /v1/chat`). There is **no** required `/api` path segment unless you set `API_GLOBAL_PREFIX` (see `apps/api/.env.example`).
+
+**Order (first run and after new migrations):**
+
+1. Start Postgres and apply migrations **from the host** (Prisma CLI is not shipped in the pruned image):
+   - `make docker-compose-migrate-deploy`  
+     or: `docker compose up -d postgres`, wait for health, then  
+     `DATABASE_URL=postgresql://rtchat:rtchat@127.0.0.1:5432/rtchat?schema=public npx prisma migrate deploy --schema apps/api/prisma/schema.prisma`
+2. Build and start the API container: `docker compose up -d --build api`
+
+**One-shot (migrate + API + Postgres):** `make docker-up`
+
+Then open **http://localhost:3000/docs** and use **http://localhost:3000/v1/chat** (or `http://localhost:3000/health/live`).
+
+If you set **`API_GLOBAL_PREFIX=api`**, use **`/api/docs`** and **`/api/v1/chat`** instead, and update any clients (e.g. demo UI `NEXT_PUBLIC_API_URL` + fetch paths) accordingly.
+
 ## Environment files
 
 - `make env` / `npm run env` copies `apps/api/.env.example` → `apps/api/.env` and `apps/demo-ui/.env.local.example` → `apps/demo-ui/.env.local` when missing.

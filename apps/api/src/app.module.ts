@@ -20,7 +20,9 @@ import { PrismaModule } from './prisma/prisma.module';
       skipIf: (ctx) => {
         const req = ctx.switchToHttp().getRequest<{ url?: string }>();
         const url = req.url ?? '';
-        return url.startsWith('/health') || url.startsWith('/metrics') || url.startsWith('/docs');
+        return (
+          url.includes('/health') || url.includes('/metrics') || url.includes('/docs')
+        );
       },
     }),
     PrismaModule,
