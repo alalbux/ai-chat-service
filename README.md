@@ -89,6 +89,14 @@ make test              # contracts + API unit tests
 make test-e2e          # API e2e — requires DATABASE_URL (e.g. after make db-up + make migrate)
 ```
 
+Process model (12-Factor style, independently scalable):
+
+```bash
+npm run start:web -w @ai-chat/api
+npm run start:worker -w @ai-chat/api
+npm run start:scheduler -w @ai-chat/api
+```
+
 **Rate limit check (manual):** set `RATE_LIMIT_MAX=2` and `RATE_LIMIT_TTL_MS=600000` in `apps/api/.env`, restart the API (`make dev-api`), then `POST /v1/chat` with the same body three times; the third should return **429**.
 
 ## CI
@@ -101,7 +109,10 @@ Pull requests and `main` use `.github/workflows/ci.yml`: lint (`lint:ci`), typec
 
 ## CD
 
-On every push to `main`, `.github/workflows/cd.yml` runs a quality gate, builds and pushes the API image to **GHCR** (`ghcr.io/<owner>/ai-chat-api:<git-sha>` and `:latest`), then optional staging, smoke tests, manual approval (GitHub Environment **production**), production deploy placeholders, post-deploy health, and rollback hooks (implement in the workflow jobs once environments exist).
+On every push to `main`, `.github/workflows/cd.yml` runs a quality gate, builds and pushes the API image to **GHCR** (`ghcr.io/<owner>/ai-chat-api:<git-sha>` and `:latest`), uploads a release manifest artifact, then runs optional staging and production rollout. Production deploy+rollback automation is enabled when these repository settings are configured:
+
+- Variables: `ENABLE_CD_PRODUCTION=true`, optional `K8S_NAMESPACE`, `K8S_DEPLOYMENT`, `PROD_HEALTHCHECK_URL`
+- Secret: `KUBE_CONFIG_B64` (base64 kubeconfig for the production cluster)
 
 Configuration variables, secrets, and the full diagram are in [docs/cicd-pipeline.md](docs/cicd-pipeline.md) (includes Portuguese sections for CD variables and AWS CLI OIDC).
 

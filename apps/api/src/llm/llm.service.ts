@@ -1,15 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-export type LlmCompletion = {
-  text: string;
-  provider: 'openrouter' | 'gemini' | 'mock';
-  model: string | null;
-};
+import { ChatProvider, LlmCompletion } from '../core/ports/chat-provider.port';
 
 @Injectable()
-export class LlmService {
+export class LlmService implements ChatProvider {
   private readonly log = new Logger(LlmService.name);
 
   constructor(private readonly config: ConfigService) {}

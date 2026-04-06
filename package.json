@@ -32,7 +32,5 @@
     "prettier": "^3.4.2",
     "typescript": "^5.7.2"
   },
-  "dependencies": {
-    "dd-trace": "^5.94.0"
-  }
+  "dependencies": {}
 }

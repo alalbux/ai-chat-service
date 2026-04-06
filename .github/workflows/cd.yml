@@ -11,6 +11,7 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/ai-chat-api
+  RELEASE_SHA: ${{ github.sha }}
 
 jobs:
   quality-gate:
@@ -45,6 +46,23 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Build release manifest
+        run: |
+          mkdir -p release
+          cat > release/manifest.json <<'EOF'
+          {
+            "service": "ai-chat-api",
+            "image": "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}",
+            "sha": "${{ github.sha }}",
+            "run_id": "${{ github.run_id }}",
+            "created_at": "${{ github.run_number }}"
+          }
+          EOF
+      - name: Upload release manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest-${{ github.sha }}
+          path: release/manifest.json
 
   deploy-staging:
     needs: publish-image
@@ -66,13 +84,72 @@ jobs:
     needs: publish-image
     runs-on: ubuntu-latest
     environment: production
+    if: ${{ vars.ENABLE_CD_PRODUCTION == 'true' }}
+    env:
+      K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
+      K8S_DEPLOYMENT: ${{ vars.K8S_DEPLOYMENT }}
+      KUBE_CONFIG_PRESENT: ${{ secrets.KUBE_CONFIG_B64 != '' }}
+      IMAGE_URI: ghcr.io/${{ github.repository_owner }}/ai-chat-api:${{ github.sha }}
     steps:
-      - run: |
-          echo "Rolling update to production (placeholder)."
-          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+      - uses: actions/checkout@v4
+      - name: Configure kubeconfig
+        if: env.KUBE_CONFIG_PRESENT == 'true'
+        shell: bash
+        run: |
+          mkdir -p "${HOME}/.kube"
+          echo "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > "${HOME}/.kube/config"
+          chmod 600 "${HOME}/.kube/config"
+      - name: Deploy image and wait for rollout
+        if: env.KUBE_CONFIG_PRESENT == 'true'
+        shell: bash
+        run: |
+          ns="${K8S_NAMESPACE:-rt-chat}"
+          deploy="${K8S_DEPLOYMENT:-rt-chat-api}"
+          kubectl -n "${ns}" set image deployment/"${deploy}" api="${IMAGE_URI}"
+          kubectl -n "${ns}" annotate deployment/"${deploy}" "release.sha=${{ github.sha }}" --overwrite
+          kubectl -n "${ns}" rollout status deployment/"${deploy}" --timeout=300s
+      - name: Skip production deployment (kubeconfig not configured)
+        if: env.KUBE_CONFIG_PRESENT != 'true'
+        run: echo "::warning::Skipping production deploy. Set secret KUBE_CONFIG_B64 and vars ENABLE_CD_PRODUCTION/K8S_*."
 
   post-deploy-health:
     needs: deploy-production
     runs-on: ubuntu-latest
+    if: ${{ vars.ENABLE_CD_PRODUCTION == 'true' }}
+    env:
+      K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}
+      K8S_DEPLOYMENT: ${{ vars.K8S_DEPLOYMENT }}
+      PROD_HEALTHCHECK_URL: ${{ vars.PROD_HEALTHCHECK_URL }}
+      KUBE_CONFIG_PRESENT: ${{ secrets.KUBE_CONFIG_B64 != '' }}
     steps:
-      - run: echo "Validate production health; on failure trigger rollback (kubectl rollout undo, etc.)."
+      - uses: actions/checkout@v4
+      - name: Configure kubeconfig
+        if: env.KUBE_CONFIG_PRESENT == 'true'
+        shell: bash
+        run: |
+          mkdir -p "${HOME}/.kube"
+          echo "${{ secrets.KUBE_CONFIG_B64 }}" | base64 -d > "${HOME}/.kube/config"
+          chmod 600 "${HOME}/.kube/config"
+      - name: Validate production health and rollback on failure
+        if: env.KUBE_CONFIG_PRESENT == 'true'
+        shell: bash
+        run: |
+          ns="${K8S_NAMESPACE:-rt-chat}"
+          deploy="${K8S_DEPLOYMENT:-rt-chat-api}"
+          health_url="${PROD_HEALTHCHECK_URL}"
+
+          if [ -z "${health_url}" ]; then
+            echo "::warning::PROD_HEALTHCHECK_URL not set. Using rollout status only."
+            kubectl -n "${ns}" rollout status deployment/"${deploy}" --timeout=180s
+            exit 0
+          fi
+
+          if ! curl --fail --silent --show-error --max-time 15 "${health_url}" > /dev/null; then
+            echo "::error::Healthcheck failed for ${health_url}. Triggering rollback."
+            kubectl -n "${ns}" rollout undo deployment/"${deploy}"
+            kubectl -n "${ns}" rollout status deployment/"${deploy}" --timeout=300s
+            exit 1
+          fi
+      - name: Skip post-deploy health (kubeconfig not configured)
+        if: env.KUBE_CONFIG_PRESENT != 'true'
+        run: echo "::warning::Skipping post-deploy validation. Set secret KUBE_CONFIG_B64 to enable rollback automation."

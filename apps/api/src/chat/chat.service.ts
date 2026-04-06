@@ -1,14 +1,14 @@
 import { ChatCreateBodySchema, ChatRecord, type ChatCreateBody } from '@ai-chat/contracts';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ZodError } from 'zod';
-import { LlmService } from '../llm/llm.service';
+import { CHAT_PROVIDER, ChatProvider } from '../core/ports/chat-provider.port';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ChatService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly llm: LlmService,
+    @Inject(CHAT_PROVIDER) private readonly llm: ChatProvider,
   ) {}
 
   parseCreateBody(body: unknown): ChatCreateBody {
