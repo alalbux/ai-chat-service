@@ -1,4 +1,4 @@
-on: [push]
+﻿on: [push]
 
 name: Datadog Software Composition Analysis
 
@@ -6,13 +6,20 @@ jobs:
   software-composition-analysis:
     runs-on: ubuntu-latest
     name: Datadog SBOM Generation and Upload
+    env:
+      DD_SCA_READY: ${{ secrets.DD_API_KEY != '' && secrets.DD_APP_KEY != '' }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-    - name: Check imported libraries are secure and compliant
-      id: datadog-software-composition-analysis
-      uses: DataDog/datadog-sca-github-action@main
-      with:
-        dd_api_key: ${{ secrets.DD_API_KEY }}
-        dd_app_key: ${{ secrets.DD_APP_KEY }}
-        dd_site: us5.datadoghq.com
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check imported libraries are secure and compliant
+        id: datadog-software-composition-analysis
+        if: env.DD_SCA_READY == 'true'
+        uses: DataDog/datadog-sca-github-action@main
+        with:
+          dd_api_key: ${{ secrets.DD_API_KEY }}
+          dd_app_key: ${{ secrets.DD_APP_KEY }}
+          dd_site: us5.datadoghq.com
+      - name: Skip Datadog SCA (secrets not configured)
+        if: env.DD_SCA_READY != 'true'
+        run: |
+          echo "::notice::Skipping Datadog SCA — set repository secrets DD_API_KEY and DD_APP_KEY (Datadog Organization Settings) to enable SBOM upload."
